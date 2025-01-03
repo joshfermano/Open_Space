@@ -1,0 +1,19 @@
+{
+  "name": "openspace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss -i ./src/assets/css/input.css -o ./src/assets/css/main.css",
+    "watch": "tailwindcss -i ./src/assets/css/input.css -o ./src/assets/css/main.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  },
+  "dependencies": {
+    "taos": "^1.0.5"
+  }
+}

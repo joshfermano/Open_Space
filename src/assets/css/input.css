@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type='date'].bg-red-50::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(3) hue-rotate(320deg);
+}
+
+input[type='date'][data-booked-dates] {
+  position: relative;
+  cursor: pointer;
+}
+
+input[type='date'][data-booked-dates]:disabled {
+  background-color: #f9f9f9;
+  cursor: not-allowed;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.form-checkbox {
+  @apply rounded border-gray-300 text-black focus:ring-black cursor-pointer;
+}
+
+.category-filter:checked + span {
+  @apply font-semibold;
+}
+
+#roomcards {
+  min-height: 200px;
+}
+
+.hidden {
+  display: none;
+}
