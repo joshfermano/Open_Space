@@ -1,7 +1,6 @@
 <?php
 require_once '../../config/config.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: /openspace/src/pages/auth/login.php');
     exit;
@@ -15,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             empty($_POST['category_id']) ||
             empty($_POST['description']) ||
             empty($_POST['location']) ||
-            !isset($_POST['price']) || // Changed from empty() to isset()
+            !isset($_POST['price']) ||
             empty($_POST['capacity'])
         ) {
             throw new Exception("All fields are required");
@@ -47,68 +46,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $room_id = $conn->insert_id;
-
-        // Handle image uploads
-        if (!isset($_FILES['room_images']) || empty($_FILES['room_images']['name'][0])) {
-            throw new Exception("At least one image is required");
-        }
-
-        // Create room directory
-        $room_path = ROOMS_UPLOAD_PATH . "/{$room_id}";
-        if (!file_exists($room_path)) {
-            mkdir($room_path, 0777, true);
-        }
-
-        $files = $_FILES['room_images'];
         $uploaded_count = 0;
-        $max_images = 5;
 
-        foreach ($files['name'] as $i => $name) {
-            if ($uploaded_count >= $max_images) break;
+        // Handle image uploads if present
+        if (isset($_FILES['room_images']) && !empty($_FILES['room_images']['name'][0])) {
+            // Create room directory
+            $room_path = ROOMS_UPLOAD_PATH . "/{$room_id}";
+            if (!file_exists($room_path)) {
+                mkdir($room_path, 0777, true);
+            }
 
-            if (
-                $files['error'][$i] === 0
-            ) {
-                $ext = pathinfo($name, PATHINFO_EXTENSION);
-                $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+            $files = $_FILES['room_images'];
+            $max_images = 5;
 
-                if (!in_array(strtolower($ext), $allowed_types)) {
-                    throw new Exception("Invalid file type. Allowed types: " . implode(', ', $allowed_types));
-                }
+            foreach ($files['name'] as $i => $name) {
+                if ($uploaded_count >= $max_images) break;
 
-                $filename = uniqid() . "." . $ext;
-                $filepath = $room_path . "/" . $filename;
+                if ($files['error'][$i] === 0) {
+                    $ext = pathinfo($name, PATHINFO_EXTENSION);
+                    $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
 
-                if (move_uploaded_file($files['tmp_name'][$i], $filepath)) {
-                    $is_primary = ($i === 0) ? 1 : 0;
-                    $image_url = "/openspace/src/uploads/rooms/{$room_id}/{$filename}";
-
-                    $stmt = $conn->prepare("INSERT INTO room_images (room_id, image_path, is_primary) VALUES (?, ?, ?)");
-                    $stmt->bind_param(
-                        "isi",
-                        $room_id,
-                        $image_url,
-                        $is_primary
-                    );
-
-                    if (!$stmt->execute()) {
-                        throw new Exception("Error saving image");
+                    if (!in_array(strtolower($ext), $allowed_types)) {
+                        throw new Exception("Invalid file type. Allowed types: " . implode(', ', $allowed_types));
                     }
 
-                    $uploaded_count++;
-                } else {
-                    throw new Exception("Error uploading image");
+                    $filename = uniqid() . "." . $ext;
+                    $filepath = $room_path . "/" . $filename;
+
+                    if (move_uploaded_file($files['tmp_name'][$i], $filepath)) {
+                        $is_primary = ($i === 0) ? 1 : 0;
+                        $image_url = "/openspace/src/uploads/rooms/{$room_id}/{$filename}";
+
+                        $stmt = $conn->prepare("INSERT INTO room_images (room_id, image_path, is_primary) VALUES (?, ?, ?)");
+                        $stmt->bind_param("isi", $room_id, $image_url, $is_primary);
+
+                        if (!$stmt->execute()) {
+                            throw new Exception("Error saving image");
+                        }
+
+                        $uploaded_count++;
+                    }
                 }
             }
         }
 
+        // If no images were uploaded, use default logo
         if ($uploaded_count === 0) {
-            throw new Exception("No valid images were uploaded");
+            $default_image = "/openspace/src/assets/img/logo_black.jpg";
+            $stmt = $conn->prepare("INSERT INTO room_images (room_id, image_path, is_primary) VALUES (?, ?, 1)");
+            $stmt->bind_param("is", $room_id, $default_image);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Error setting default image");
+            }
         }
+
         // Commit transaction
         $conn->commit();
-
-        header('Location: /openspace/src/pages/dashboard/rooms.php?success=1');
+        header('Location: /openspace/src/pages/dashboard/rooms.php?success=Room created successfully');
         exit;
     } catch (Exception $e) {
         // Rollback on error

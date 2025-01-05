@@ -37,11 +37,11 @@ if (!isset($_SESSION['user_id'])) {
                 <h2 class="text-xl font-semibold">Room Images</h2>
                 <div id="imagePreviewGrid" class="grid grid-cols-4 gap-4">
                     <label class="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-gray-400">
-                        <input type="file" name="room_images[]" id="roomImages" class="hidden" multiple accept="image/*" required />
+                        <input type="file" name="room_images[]" id="roomImages" class="hidden" multiple accept="image/*" />
                         <i class="fa-solid fa-plus text-gray-400"></i>
                     </label>
                 </div>
-                <p class="text-sm text-gray-500">Upload at least one image. First image will be the main display.</p>
+                <p class="text-sm text-gray-500">Upload up to 5 images. If no image is uploaded, a default image will be used.</p>
             </div>
 
             <!-- Room Details -->

@@ -55,11 +55,14 @@ if (isset($_SESSION['user_id'])) {
 
                 <div>
                     <label for="password" class="block text-sm font-medium">Password</label>
-                    <input type="password"
-                        id="password"
-                        name="password"
-                        required
-                        class="w-full p-2 mt-1 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" />
+                    <div class="flex items-center border rounded-lg overflow-hidden">
+                        <input type="password" id="password" name="password" required
+                            class="w-full p-2 focus:ring-2 focus:ring-black focus:outline-none" />
+                        <button type="button"
+                            class="password-toggle flex items-center text-gray-500 hover:text-gray-700 p-2">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit"
@@ -78,6 +81,7 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <script src="/openspace/src/assets/js/auth.js"></script>
+    <script src="/openspace/src/assets/js/passwordToggle.js"></script>
 </body>
 
 </html>

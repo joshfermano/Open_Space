@@ -21,3 +21,36 @@ function confirmCancel(booking_id) {
       });
   }
 }
+
+// Add function to periodically check cancellation availability
+function updateCancellationAvailability() {
+  const approvedBookings = document.querySelectorAll(
+    '[data-booking-status="approved"]'
+  );
+  approvedBookings.forEach((booking) => {
+    const checkInTime = new Date(
+      booking.querySelector('[data-check-in]').dataset.checkIn
+    );
+    const oneHourBefore = new Date(checkInTime.getTime() - 3600000);
+    const cancelButton = booking.querySelector(
+      'button[onclick^="confirmCancel"]'
+    );
+
+    if (cancelButton && new Date() >= oneHourBefore) {
+      cancelButton.remove();
+      const statusDiv = booking.querySelector('.space-y-4.text-right div');
+      if (!statusDiv.querySelector('.text-red-500')) {
+        statusDiv.insertAdjacentHTML(
+          'beforeend',
+          '<p class="text-sm text-red-500">Cannot cancel within 1 hour of check-in</p>'
+        );
+      }
+    }
+  });
+}
+
+// Check every minute
+setInterval(updateCancellationAvailability, 60000);
+
+// Initial check
+document.addEventListener('DOMContentLoaded', updateCancellationAvailability);

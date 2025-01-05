@@ -24,9 +24,9 @@ try {
 
     $conn->begin_transaction();
 
-    // Check if booking exists and belongs to user
+    // Check if booking exists, belongs to user, and get check_in time
     $stmt = $conn->prepare("
-        SELECT status 
+        SELECT status, check_in 
         FROM bookings 
         WHERE booking_id = ? AND user_id = ?
     ");
@@ -40,8 +40,19 @@ try {
 
     $booking = $result->fetch_assoc();
 
+    // Check if booking can be cancelled
     if (!in_array($booking['status'], ['pending', 'approved'])) {
         throw new Exception('This booking cannot be cancelled');
+    }
+
+    // Check if within 1 hour of check-in time for approved bookings
+    if ($booking['status'] === 'approved') {
+        $check_in_time = strtotime($booking['check_in']);
+        $one_hour_before = $check_in_time - 3600; // 1 hour in seconds
+
+        if (time() >= $one_hour_before) {
+            throw new Exception('Cannot cancel bookings within 1 hour of check-in time');
+        }
     }
 
     // Update booking status
@@ -63,7 +74,7 @@ try {
         'message' => 'Booking cancelled successfully'
     ]);
 } catch (Exception $e) {
-    $conn->rollback();
+    if (isset($conn)) $conn->rollback();
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

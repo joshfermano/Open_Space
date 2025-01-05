@@ -19,7 +19,6 @@ try {
     $params = [];
     $types = "";
 
-    // Add search condition if search term is provided
     if (!empty($search)) {
         $query .= " AND (r.title LIKE ? OR r.description LIKE ?)";
         $searchTerm = "%{$search}%";
@@ -28,13 +27,15 @@ try {
         $types .= "ss";
     }
 
-    // Add category filter if categories are selected
     if (!empty($categories)) {
         $placeholders = str_repeat('?,', count($categories) - 1) . '?';
         $query .= " AND r.category_id IN ($placeholders)";
         $params = array_merge($params, $categories);
         $types .= str_repeat('i', count($categories));
     }
+
+    // Add ORDER BY clause for alphabetical sorting
+    $query .= " ORDER BY r.title ASC";
 
     $stmt = $conn->prepare($query);
 

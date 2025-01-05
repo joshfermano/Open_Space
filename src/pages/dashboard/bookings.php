@@ -144,9 +144,14 @@ while ($booking = $result->fetch_assoc()) {
         <h2 class="text-2xl font-bold mb-6">Approved Bookings</h2>
         <?php if (!empty($bookings['approved'])): ?>
           <div class="space-y-4">
-            <?php foreach ($bookings['approved'] as $booking): ?>
+            <?php foreach ($bookings['approved'] as $booking):
+              $check_in_time = strtotime($booking['check_in']);
+              $one_hour_before = $check_in_time - 3600;
+              $can_cancel = time() < $one_hour_before;
+            ?>
               <div class="border border-gray-300 p-4 rounded-xl"
                 data-booking-status="approved"
+                data-check-in="<?= $booking['check_in'] ?>"
                 data-check-out="<?= $booking['check_out'] ?>">
                 <div class="shadow-lg p-6 rounded-lg">
                   <div class="flex items-center justify-between">
@@ -159,7 +164,7 @@ while ($booking = $result->fetch_assoc()) {
                         <p class="text-gray-600">Total Price: ₱<?= number_format($booking['total_price'], 2) ?></p>
                         <p class="text-gray-600">
                           Date: <?= date('F j, Y', strtotime($booking['check_in'])) ?>
-                          <?php if (strtotime($booking['check_in']) !== strtotime($booking['check_out'])): ?>
+                          <?php if (date('Y-m-d', strtotime($booking['check_in'])) !== date('Y-m-d', strtotime($booking['check_out']))): ?>
                             - <?= date('F j, Y', strtotime($booking['check_out'])) ?>
                           <?php endif; ?>
                         </p>
@@ -173,12 +178,17 @@ while ($booking = $result->fetch_assoc()) {
                       <div>
                         <p class="text-sm text-gray-500">Status</p>
                         <p class="text-green-600 font-semibold">Approved</p>
+                        <?php if (!$can_cancel): ?>
+                          <p class="text-sm text-red-500">Cannot cancel within 1 hour of check-in</p>
+                        <?php endif; ?>
                       </div>
-                      <button type="button"
-                        onclick="confirmCancel(<?= $booking['booking_id'] ?>)"
-                        class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
-                        Cancel Booking
-                      </button>
+                      <?php if ($can_cancel): ?>
+                        <button type="button"
+                          onclick="confirmCancel(<?= $booking['booking_id'] ?>)"
+                          class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
+                          Cancel Booking
+                        </button>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>

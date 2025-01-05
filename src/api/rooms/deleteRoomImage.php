@@ -18,7 +18,7 @@ try {
 
     // Verify image ownership and get image details
     $stmt = $conn->prepare("
-        SELECT ri.image_path, ri.room_id, ri.is_primary
+        SELECT ri.image_path, ri.room_id, ri.is_primary, ri.image_id
         FROM room_images ri 
         JOIN rooms r ON ri.room_id = r.room_id
         WHERE ri.image_id = ? AND r.owner_id = ?
@@ -33,7 +33,7 @@ try {
 
     $image = $result->fetch_assoc();
 
-    // Check if it's the only image
+    // Check total number of images
     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM room_images WHERE room_id = ?");
     $stmt->bind_param("i", $image['room_id']);
     $stmt->execute();
@@ -43,8 +43,33 @@ try {
         throw new Exception("Cannot delete the only image");
     }
 
+    // If deleting primary image, set another image as primary
     if ($image['is_primary']) {
-        throw new Exception("Cannot delete primary image");
+        // Get next available image
+        $stmt = $conn->prepare("
+            SELECT image_id 
+            FROM room_images 
+            WHERE room_id = ? AND image_id != ? 
+            LIMIT 1
+        ");
+        $stmt->bind_param("ii", $image['room_id'], $image_id);
+        $stmt->execute();
+        $new_primary = $stmt->get_result()->fetch_assoc();
+
+        if ($new_primary) {
+            // Set new primary image
+            $stmt = $conn->prepare("
+                UPDATE room_images 
+                SET is_primary = 1 
+                WHERE image_id = ?
+            ");
+            $stmt->bind_param("i", $new_primary['image_id']);
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to set new primary image");
+            }
+        } else {
+            throw new Exception("Cannot delete the only image");
+        }
     }
 
     // Delete physical file
@@ -64,8 +89,16 @@ try {
     }
 
     $conn->commit();
-    echo json_encode(['success' => true]);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Image deleted successfully'
+    ]);
 } catch (Exception $e) {
-    $conn->rollback();
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    if (isset($conn)) {
+        $conn->rollback();
+    }
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }
