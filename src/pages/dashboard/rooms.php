@@ -255,8 +255,14 @@ $approved_bookings->data_seek(0); // Reset result pointer for reuse
                                                 </p>
                                             </div>
                                         </div>
-                                        <div>
-                                            <p class="text-gray-600 font-semibold">Completed</p>
+                                        <div class="space-y-4 text-right">
+                                            <div>
+                                                <p class="text-gray-600 font-semibold">Completed</p>
+                                            </div>
+                                            <button onclick="ownerDeleteBooking(<?= $booking['booking_id'] ?>)"
+                                                class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
+                                                Delete Permanently
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -299,6 +305,7 @@ $approved_bookings->data_seek(0); // Reset result pointer for reuse
         </section>
 
         <script src="/openspace/src/assets/js/handleBooking.js"></script>
+        <script src="/openspace/src/assets/js/ownerDeleteBooking.js"></script>
 </body>
 
 </html>

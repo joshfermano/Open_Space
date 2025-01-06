@@ -23,7 +23,7 @@ $query = "
     FROM bookings b
     JOIN rooms r ON b.room_id = r.room_id
     LEFT JOIN room_images ri ON r.room_id = ri.room_id AND ri.is_primary = 1
-    WHERE b.user_id = ?
+    WHERE b.user_id = ? AND b.hidden_from_user = 0
     ORDER BY b.created_at DESC
 ";
 
@@ -225,9 +225,15 @@ while ($booking = $result->fetch_assoc()) {
                         </p>
                       </div>
                     </div>
-                    <div>
-                      <p class="text-sm text-gray-500">Status</p>
-                      <p class="text-gray-600 font-semibold">Completed</p>
+                    <div class="space-y-4 text-right">
+                      <div>
+                        <p class="text-sm text-gray-500">Status</p>
+                        <p class="text-gray-600 font-semibold">Completed</p>
+                      </div>
+                      <button onclick="deleteBooking(<?= $booking['booking_id'] ?>)"
+                        class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -282,6 +288,7 @@ while ($booking = $result->fetch_assoc()) {
 
   <script src="/openspace/src/assets/js/bookRoom.js"></script>
   <script src="/openspace/src/assets/js/updatePastBookings.js"></script>
+  <script src="/openspace/src/assets/js/deleteCompletedBookings.js"></script>
 
 </body>
 
