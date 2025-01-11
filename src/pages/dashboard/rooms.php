@@ -215,6 +215,10 @@ $approved_bookings->data_seek(0); // Reset result pointer for reuse
                                         </div>
                                         <div>
                                             <p class="text-green-600 font-semibold">Approved</p>
+                                            <button onclick="window.location.href='/openspace/src/pages/bookings/viewInvoice.php?id=<?= $booking['booking_id'] ?>'"
+                                                class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition duration-300">
+                                                View Invoice
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -259,6 +263,10 @@ $approved_bookings->data_seek(0); // Reset result pointer for reuse
                                             <div>
                                                 <p class="text-gray-600 font-semibold">Completed</p>
                                             </div>
+                                            <button onclick="window.location.href='/openspace/src/pages/bookings/viewInvoice.php?id=<?= $booking['booking_id'] ?>'"
+                                                class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition duration-300">
+                                                View Invoice
+                                            </button>
                                             <button onclick="ownerDeleteBooking(<?= $booking['booking_id'] ?>)"
                                                 class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
                                                 Delete Permanently

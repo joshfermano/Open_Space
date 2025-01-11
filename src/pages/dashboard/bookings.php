@@ -188,6 +188,11 @@ while ($booking = $result->fetch_assoc()) {
                           class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
                           Cancel Booking
                         </button>
+
+                        <button onclick="window.location.href='/openspace/src/pages/bookings/viewInvoice.php?id=<?= $booking['booking_id'] ?>'"
+                          class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition duration-300">
+                          View Invoice
+                        </button>
                       <?php endif; ?>
                     </div>
                   </div>
@@ -230,6 +235,10 @@ while ($booking = $result->fetch_assoc()) {
                         <p class="text-sm text-gray-500">Status</p>
                         <p class="text-gray-600 font-semibold">Completed</p>
                       </div>
+                      <button onclick="window.location.href='/openspace/src/pages/bookings/viewInvoice.php?id=<?= $booking['booking_id'] ?>'"
+                        class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition duration-300">
+                        View Invoice
+                      </button>
                       <button onclick="deleteBooking(<?= $booking['booking_id'] ?>)"
                         class="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-300">
                         Delete
